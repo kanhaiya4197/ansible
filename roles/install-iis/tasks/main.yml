@@ -1,0 +1,284 @@
+---
+########################################################Install dotnet 3.5 framework ############
+- name: Install dotnet 3.5 framework
+  block:
+    - name: Create "{{ tmpdir }}" directory
+      win_file:
+        path: "{{ tmpdir }}"
+        state: directory
+
+    ########################################################dotnet freamework - 3.5 Installation############
+    # This will reduce the dependecy on Feature installation for .net framework 3.5 which needs ISO to be mounted
+    - name: Copy dotnet-3.5 from files
+      win_copy:
+          src: dotNetFx35setup.exe
+          dest: "{{ tmpdir }}"
+
+    # Install .net freamework - 3.5
+    - name: Install dotnet-3.5
+      win_shell: |
+        $Path = "{{ tmpdir }}\dotNetFx35setup.exe"
+        $args = New-Object -TypeName System.Collections.Generic.List[System.String]
+        $args.Add("/quiet")
+        $args.Add("/norestart")
+        Start-Process -FilePath $Path -ArgumentList $args -NoNewWindow -Wait -PassThru
+
+########################################################Install dotnet 5 ############
+
+- name: Install dotnet/5.xxx
+  block:
+    # Install dotnet-hosting-{{ dotnetver }}-win.exe
+    # - name: Copy dotnet-hosting from files
+    #   win_copy:
+    #       src: dotnet-hosting-{{ dotnetver }}-win.exe
+    #       dest: "{{ tmpdir }}"
+    #   when: install_dotnet_hosting
+
+    # dotnet-hosting-{{ dotnetver }}-win.exe
+    - name: Download dotnet-hosting-{{ dotnetver }}-win.exe
+      win_get_url:
+        url: "{{ dotnethostingurl }}"
+        dest: "{{ tmpdir }}"
+
+    - name: Install dotnet5-hosting
+      win_shell: |
+        $Path = "{{ tmpdir }}\dotnet-hosting-{{ dotnetver }}-win.exe"
+        $args = New-Object -TypeName System.Collections.Generic.List[System.String]
+        $args.Add("/quiet")
+        $args.Add("/norestart")
+        Start-Process -FilePath $Path -ArgumentList $args -NoNewWindow -Wait -PassThru
+      when: install_dotnet_hosting
+
+    # dotnet-runtime-{{ dotnetver }}-win-x64.exe
+    - name: Download dotnet-runtime-{{ dotnetver }}-win-x64.exe
+      win_get_url:
+        url: "{{ dotnetruntimeurl }}"
+        dest: "{{ tmpdir }}"
+
+    - name: Install dotnet-runtime-{{ dotnetver }}-win-x64.exe
+      win_shell: |
+        $Path = "{{ tmpdir }}\dotnet-runtime-{{ dotnetver }}-win-x64.exe"
+        $args = New-Object -TypeName System.Collections.Generic.List[System.String]
+        $args.Add("/quiet")
+        $args.Add("/norestart")
+        Start-Process -FilePath $Path -ArgumentList $args -NoNewWindow -Wait -PassThru
+      when: install_dotnet_hosting
+
+
+    # dotnet-sdk-{{ dotnetsdkver }}-win-x64.exe
+    - name: Download dotNet5-SDK
+      win_get_url:
+        url: "{{ dotnetsdkurl }}"
+        dest: "{{ tmpdir }}"
+
+    - name: Install dotnet-sdk-{{ dotnetsdkver }}-win-x64.exe
+      win_shell: |
+        $Path = "{{ tmpdir }}\dotnet-sdk-{{ dotnetsdkver }}-win-x64.exe"
+        $args = New-Object -TypeName System.Collections.Generic.List[System.String]
+        $args.Add("/quiet")
+        $args.Add("/norestart")
+        Start-Process -FilePath $Path -ArgumentList $args -NoNewWindow -Wait -PassThru
+      when: install_dotnet_hosting
+
+
+    # Download aspnetcore-runtime-{{ aspdotnetver }}-win-x64.exe
+    - name: Download aspdotNet-Core-Freamework
+      win_get_url:
+        url: "{{ aspdotnetruntimeurl }}"
+        dest: "{{ tmpdir }}"
+      when: install_aspdotnetcore
+
+    - name: Install aspdotNet-Core-Freamework
+      win_shell: |
+        $Path = "{{ tmpdir }}\aspnetcore-runtime-{{ aspdotnetver }}-win-x64.exe"
+        $args = New-Object -TypeName System.Collections.Generic.List[System.String]
+        $args.Add("/quiet")
+        $args.Add("/norestart")
+        Start-Process -FilePath $Path -ArgumentList $args -NoNewWindow -Wait -PassThru
+      when: install_aspdotnetcore
+  when: dotnet_ver == "5"
+
+########################################################Install dotnet 6 ############
+
+- name: Install dotnet/6.xxx
+  block:
+    
+    # dotnet-hosting-{{ dotnet6ver }}-win.exe
+    - name: Download dotnet-hosting-{{ dotnet6ver }}-win.exe
+      win_get_url:
+        #url: https://download.visualstudio.microsoft.com/download/pr/ae1014c7-a005-4a0e-9062-b6f3056ded09/da5d731f5ead9e385427a77412b88fb0/dotnet-hosting-{{ dotnet6ver }}-win.exe
+        url: "{{ dotnet6hostingurl }}"
+        dest: "{{ tmpdir }}"
+
+    - name: Install dotnet6-hosting
+      win_shell: |
+        $Path = "{{ tmpdir }}\dotnet-hosting-{{ dotnet6ver }}-win.exe"
+        $args = New-Object -TypeName System.Collections.Generic.List[System.String]
+        $args.Add("/quiet")
+        $args.Add("/norestart")
+        Start-Process -FilePath $Path -ArgumentList $args -NoNewWindow -Wait -PassThru
+      when: install_dotnet_hosting
+
+    # dotnet-runtime-{{ dotnet6ver }}-win-x64.exe
+    - name: Download dotnet-runtime-{{ dotnet6ver }}-win-x64.exe
+      win_get_url:
+        url: "{{ dotnet6runtimeurl }}"
+        dest: "{{ tmpdir }}"
+
+    - name: Install dotnet-runtime-{{ dotnet6ver }}-win-x64.exe
+      win_shell: |
+        $Path = "{{ tmpdir }}\dotnet-runtime-{{ dotnet6ver }}-win-x64.exe"
+        $args = New-Object -TypeName System.Collections.Generic.List[System.String]
+        $args.Add("/quiet")
+        $args.Add("/norestart")
+        Start-Process -FilePath $Path -ArgumentList $args -NoNewWindow -Wait -PassThru
+      when: install_dotnet_hosting
+
+
+    # dotnet-sdk-{{ dotnet6sdkver }}-win-x64.exe
+    - name: Download dotNet6-SDK
+      win_get_url:
+        url: "{{ dotnet6sdkurl }}"
+        dest: "{{ tmpdir }}"
+
+    - name: Install dotnet-sdk-{{ dotnet6sdkver }}-win-x64.exe
+      win_shell: |
+        $Path = "{{ tmpdir }}\dotnet-sdk-{{ dotnet6sdkver }}-win-x64.exe"
+        $args = New-Object -TypeName System.Collections.Generic.List[System.String]
+        $args.Add("/quiet")
+        $args.Add("/norestart")
+        Start-Process -FilePath $Path -ArgumentList $args -NoNewWindow -Wait -PassThru
+      when: install_dotnet_hosting
+
+
+    # Download aspnetcore-runtime-{{ aspdotnet6ver }}-win-x64.exe
+    - name: Download aspdotNet6-Core-Freamework
+      win_get_url:
+        url: "{{ aspdotnet6runtimeurl }}"
+        dest: "{{ tmpdir }}"
+      when: install_aspdotnetcore
+
+    - name: Install aspdotNet6-Core-Freamework
+      win_shell: |
+        $Path = "{{ tmpdir }}\aspnetcore-runtime-{{ aspdotnet6ver }}-win-x64.exe"
+        $args = New-Object -TypeName System.Collections.Generic.List[System.String]
+        $args.Add("/quiet")
+        $args.Add("/norestart")
+        Start-Process -FilePath $Path -ArgumentList $args -NoNewWindow -Wait -PassThru
+      when: install_aspdotnetcore
+  when: dotnet_ver == "6"
+
+########################################################Install IIS Feature ############
+
+- name: Validate if ISO is attached in E Drive
+  win_stat:
+    path: 'e:\sources\sxs'
+  register: sxs_e_Drive
+
+- name: Validate if ISO is attached in D Drive
+  win_stat:
+    path: 'd:\sources\sxs'
+  register: sxs_d_Drive
+
+- name: Install IIS with ISO File in E Drive
+  win_feature:
+    name: 'Web-Server'
+    include_sub_features: yes
+    include_management_tools: yes
+    source: 'e:\sources\sxs'
+    state: present
+    restart: yes
+  when: sxs_e_Drive.stat.exists
+
+- name: Install IIS with ISO File in d Drive
+  win_feature:
+    name: 'Web-Server'
+    include_sub_features: yes
+    include_management_tools: yes
+    source: 'd:\sources\sxs'
+    state: present
+    restart: yes
+  when: sxs_d_Drive.stat.exists
+
+- name: Install IIS without ISO file
+  win_feature:
+    name: 'Web-Server'
+    include_sub_features: yes
+    include_management_tools: yes
+    state: present
+    restart: yes
+  when: not sxs_d_Drive.stat.exists and not sxs_e_Drive.stat.exists
+
+- name: Configure app pool
+  win_iis_webapppool:
+    name: '{{iis_app_pool_name}}'
+    state: started
+    attributes: '{{iis_app_pool_attributes|default(omit,true)}}'
+  when: iis_app_pool_name|default("",true)
+  register: iis_app_pool
+  notify: restart iis
+
+#This code will only work in case Custom app pool configuration is needed
+- name: Configure app pool with custom service account
+  win_iis_webapppool:
+    name: '{{iis_app_pool_name}}'
+    state: started
+    attributes:
+      autoStart: true
+      startMode: AlwaysRunning
+      managedRuntimeVersion: v4.0
+      managedPipelineMode: Integrated
+      processModel.identityType: SpecificUser
+      processModel.userName: '{{ServiceAccountUsername}}'
+      processModel.password: '{{ServiceAcccountPassword}}'
+      processModel.loadUserProfile: true
+  when: Customiiswebapppoolneeded
+  register: iis_app_pool
+  notify: restart iis
+
+- name: Create {{ iis_site_path }} directory
+  win_file:
+    path: '{{iis_site_path|mandatory}}'
+    state: directory
+  when: iis_site_name|default("",true)
+
+- name: Set permissions for iis group access to the webapp directory
+  win_acl:
+    path: '{{iis_acl_path}}'
+    user: '{{iis_acl_user|default(omit,true)}}'
+    rights: '{{iis_acl_rights|default(omit,true)}}'
+    type: '{{iis_acl_type|default(omit,true)}}'
+    state: '{{iis_acl_state|default(omit,true)}}'
+    inherit: '{{iis_acl_inherit|default(omit,true)}}'
+    propagation: '{{iis_acl_propagation|default(omit,true)}}'
+  when: iis_site_name|default("",true) and iis_acl_path|default("",true)
+
+- name: Site configuration
+  win_iis_website:
+    name: '{{iis_site_name}}'
+    physical_path: '{{iis_site_path|default(omit,true)}}'
+    site_id: '{{iis_site_id|default(omit,true)}}'
+    ip: '{{iis_site_ip|default(omit,true)}}'
+    port: '{{iis_site_port|default(omit,true)}}'
+    ssl: '{{iis_site_ssl|default(false)}}'
+    hostname: '{{iis_site_hostname|default(omit,true)}}'
+    application_pool: '{{iis_app_pool_name|default(omit,true)}}'
+    parameters: '{{iis_site_parameters|default(omit,true)}}'
+    state: '{{iis_site_state|default("started",true)}}'
+  when: iis_site_name|default("",true)
+  register: iis_site
+  notify: restart iis
+
+- name: Configure site bindings
+  win_iis_webbinding:
+    name: '{{iis_site_name}}'
+    host_header: '{{item.host_header|default(iis_binding_host_header,true)|default(omit,true)}}'
+    ip: '{{item.ip|default(iis_binding_ip,true)|default(omit,true)}}'
+    port: '{{item.port|default(iis_binding_port,true)|default(omit,true)}}'
+    protocol: '{{item.protocol|default(iis_binding_protocol,true)|default(omit,true)}}'
+    certificate_store_name: '{{item.certificate_store_name|default(iis_binding_certificate_store_name,true)|default(omit,true)}}'
+    certificate_hash: '{{item.certificate_hash|default(iis_binding_certificate_hash,true)|default(omit,true)}}'
+    state: '{{item.state|default(iis_binding_state,true)|default(omit,true)}}'
+  with_items: '{{iis_bindings|default([])}}'
+  when: iis_site_name|default("",true)
+  notify: restart iis

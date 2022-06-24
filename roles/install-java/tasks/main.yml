@@ -1,0 +1,128 @@
+---
+
+- name: Copy the correct resolv.conf file to the host
+  copy:
+    src: "files/{{ Ubuntu_Resolv_conf }}"
+    dest: /run/systemd/resolve/stub-resolv.conf
+    owner: systemd-resolve
+    group: systemd-resolve
+    mode: 644
+  when: ansible_os_family == 'Debian'
+
+- name: Resynchronize the package index files
+  shell: apt-get update
+  when: ansible_os_family == 'Debian'
+
+- name: "Install java version {{ Ubuntu_JDK8 }} in Debian"
+  apt:
+    name: "{{ Ubuntu_JDK8 }}"
+    state: present
+    update_cache: yes
+  when: ansible_os_family == 'Debian' and env == 'java8'
+
+- name: "Install java version {{ Ubuntu_JDK11 }} in Debian"
+  apt:
+    name: "{{ Ubuntu_JDK11 }}"
+    state: latest
+    update_cache: yes
+  when: ansible_os_family == 'Debian' and env == 'java11'
+
+- name: "Install java version {{ RedHat_JDK8 }} in RedHat"
+  yum:
+    name: "{{ RedHat_JDK8 }}"
+    state: latest
+  when: ansible_os_family == 'RedHat' and env == 'java8'
+
+- name: "Install java version {{ RedHat_JDK11 }} in RedHat"
+  yum:
+    name: "{{ RedHat_JDK11 }}"
+    state: latest
+  when: ansible_os_family == 'RedHat' and env == 'java11'
+
+- name: Create symbolic link
+  block:
+
+  - name: Find java bin installation directory.
+    shell: find / -name java|grep open|grep -v jre
+    register: javabindir
+
+  - name: Check if link exists
+    stat: 
+      path: /usr/lib/jvm/jre/bin/java
+    register: doeslinkexist
+
+  - name: Create the java symbolic link for java on Ubuntu.
+    file:
+      src: "{{ javabindir.stdout }}"
+      dest: /usr/lib/jvm/jre/bin/java
+      state: link
+    when: doeslinkexist.stat.exists == False
+
+  when: ansible_os_family == 'RedHat' or ansible_os_family == 'Debian'
+
+- name: Create the c:\Temp directory if it doesn't already exist
+  win_file:
+    path: c:\Temp
+    state: directory
+  when: ansible_os_family == 'Windows'
+
+- name: Install Java JDK 8 on remote host
+  block:
+
+  - name: Copy java Developers Kit version 8 executable to Windows server
+    win_copy:
+      src: files/jdk-8u271-windows-x64.exe
+      dest: C:\Temp\jdk-8u271-windows-x64.exe
+
+  - name: Install Java Developer Kit version 8 on Windows
+    raw: 'c:\Temp\jdk-8u271-windows-x64.exe /s ADDLOCAL="ToolsFeature,SourceFeature"'
+
+  - name: Set Java_home on Windows
+    win_environment:
+      state: present
+      name: JAVA_HOME
+      value: 'c:\program files\java\jdk1.8.0_271'
+      level: machine
+
+  - name: Add Java to path on Windows
+    win_path:
+      elements:
+        - 'c:\program files\java\jdk1.8.0_271\bin'
+
+  - name: Nuke the Java 8 installation file from the remote host
+    win_file:
+      path: C:\Temp\jdk-8u271-windows-x64.exe
+      state: absent
+
+  when: ansible_os_family == 'Windows' and env == 'java8'
+
+- name: Install Java JDK 11 on remote host
+  block:
+
+  - name: Copy java Developers Kit version 11 executable to Windows server
+    win_copy:
+      src: files/jdk-11.0.10_windows-x64_bin.exe
+      dest: C:\Temp\jdk-11.0.10_windows-x64_bin.exe
+
+  - name: Install Java Developer Kit version 11 on Windows
+    raw: 'c:\Temp\jdk-11.0.10_windows-x64_bin.exe /s ADDLOCAL="ToolsFeature,SourceFeature"'
+
+  - name: Set Java_home on Windows
+    win_environment:
+      state: present
+      name: JAVA_HOME
+      value: 'C:\Program Files\Java\jdk-11.0.10'
+      level: machine
+
+  - name: Add Java to path on Windows
+    win_path:
+      elements:
+        - 'C:\Program Files\Java\jdk-11.0.10\bin'
+
+  - name: Nuke the Java 11 installation file from the remote host
+    win_file:
+      path: C:\Temp\jdk-11.0.10_windows-x64_bin.exe
+      state: absent
+
+  when: ansible_os_family == 'Windows' and env == 'java11'
+

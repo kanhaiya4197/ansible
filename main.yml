@@ -1,0 +1,21 @@
+---
+ - hosts: linux
+   become: yes
+   become_user: root
+   roles:
+    #  - role: Add-RHELSubscription
+    #  - role: AppD-file-replace
+    #  - role: install-appd
+    #  - role: install-carbonblack
+    #  - role: install-Exabeam
+    #  - role: install-exabeam-file-collector
+    #  - role: install-iis
+    #  - role: install-java
+    #  - role: install-secret-server-sdk
+    #  - role: install-tomcat
+    #  - role: install-Falcon
+    #  - role: OS-Info
+    #  - role: uninstall-exabeam-file-collector
+    #  - role: join-domain
+    #  - role: join-ad-domain
+    

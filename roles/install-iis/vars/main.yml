@@ -1,0 +1,29 @@
+---
+# vars file for IIS installation
+  tmpdir: C:\temp\
+  dotnetver: 5.0.15
+  dotnetsdkver: 5.0.406
+  aspdotnetver: 5.0.15
+  dotnet6ver: 6.0.5
+  dotnet6sdkver: 6.0.203
+  aspdotnet6ver: 6.0.5
+  dotnethostingurl: https://download.visualstudio.microsoft.com/download/pr/d7d20e41-4bee-4f8a-a32c-278f0ef8ce1a/f5a0c59b42d01b9fc2115615c801866c/dotnet-hosting-{{ dotnetver }}-win.exe
+  dotnetruntimeurl: https://download.visualstudio.microsoft.com/download/pr/744a5a4b-c931-4365-9762-5154e999af13/51553f5bfe24e1f7d54abbfbb94d0c4c/dotnet-runtime-{{ dotnetver }}-win-x64.exe
+  dotnetsdkurl: https://download.visualstudio.microsoft.com/download/pr/f92c52da-2ef6-44f2-a296-487f94c2c37a/258dc2e61ff8bec7d90aee3ca1e7d8a3/dotnet-sdk-{{ dotnetsdkver }}-win-x64.exe
+  aspdotnetruntimeurl: https://download.visualstudio.microsoft.com/download/pr/69b4d158-fadb-46d0-8b28-6c4ba2968926/c4d93beeb194b73c134b3c2824499467/aspnetcore-runtime-{{ aspdotnetver }}-win-x64.exe
+  dotnet6hostingurl: https://download.visualstudio.microsoft.com/download/pr/ae1014c7-a005-4a0e-9062-b6f3056ded09/da5d731f5ead9e385427a77412b88fb0/dotnet-hosting-{{ dotnet6ver }}-win.exe
+  dotnet6runtimeurl: https://download.visualstudio.microsoft.com/download/pr/b395fa18-c53b-4f7f-bf91-6b2d3c43fedb/d83a318111da9e15f5ecebfd2d190e89/dotnet-runtime-{{ dotnet6ver }}-win-x64.exe
+  dotnet6sdkurl: https://download.visualstudio.microsoft.com/download/pr/c4de68d7-15fb-418a-ac11-fb51212cd16d/029648aa5eec8aed3800883620ec5d9e/dotnet-sdk-{{ dotnet6sdkver }}-win-x64.exe
+  aspdotnet6runtimeurl: https://download.visualstudio.microsoft.com/download/pr/042e2559-fe53-4793-b385-665b7c1ca6d5/308ffacc925383207a8f1a27a1df8bdc/aspnetcore-runtime-{{ aspdotnet6ver }}-win-x64.exe
+  
+  #install_dotnet_hosting: "True" #True or False It will be called in Runtime. Mandatory parameter
+  #install_aspdotnetcore: "True"  #True or False It will be called in Runtime. Mandatory parameter
+  #dotnet_ver: 5 #this will be either 5 or 6 #It will be called in Runtime. Mandatory parameter
+  #Customiiswebapppoolneeded: "False" #True or False It will be called in Runtime. Mandatory parameter
+  
+  #Custom Needs
+  #Customiiswebapppoolneeded: "True" 
+  #ServiceAccountUsername: "administrator" #It will be called in Runtime.
+  #ServiceAcccountPassword: "********" #It will be called in Runtime.
+  
+  

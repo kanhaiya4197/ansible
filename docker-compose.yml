@@ -1,0 +1,5 @@
+version: "2"
+services:
+  ssp:
+   container_name: docker_ansible_updated
+   build: .    

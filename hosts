@@ -1,0 +1,11 @@
+[linux:vars]
+ansible_connection=ssh
+ansible_user='{{ linux_user }}'
+ansible_ssh_pass='{{ ansible_ssh_pass }}'
+ansible_become_pass='{{ ansible_become_pass }}'
+
+[windows:vars]
+ansible_user='{{ win_user }}'
+ansible_password='{{ win_pass }}'
+ansible_connection=winrm
+ansible_winrm_server_cert_validation=ignore

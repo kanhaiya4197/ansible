@@ -1,0 +1,143 @@
+---
+
+- name: Copy the FindGoodDisk to the host
+  become: True
+  copy:
+    src: "{{ source_good_disk_file }}"
+    dest: "{{ dest_good_disk_file }}"
+    owner: root
+    mode: '0755'
+
+- name: Find empty disk on host
+  shell: "{{ dest_good_disk_file }}"
+  register: diskname
+
+- name: Nuke the FindGoodDisk file
+  file:
+   state: absent
+   path: "{{ dest_good_disk_file }}"
+
+- name: Make sure the roles_dir variable is set.
+  fail: msg="No free disk found ... exiting"
+  when: diskname.stdout == "None"
+
+- name: Make sure the roles_dir variable is set.
+  fail: msg="roles_dir is not defined ... exiting"
+  when: roles_dir is not defined
+
+- name: Install lvm2 on CentOS machines
+  yum:
+    name: lvm2
+    state: present
+  when: ansible_distribution == 'CentOS'
+
+- name: Create VG
+  lvg:
+    vg: "{{ vg }}"
+    pvs: "{{ diskname.stdout }}"
+
+- name: Create lv1
+  lvol:
+    vg: "{{ vg }}"
+    lv: "{{ lv1 }}"
+    size: "{{ size1 }}"
+
+- name: Create Filesystem on lv1
+  filesystem:
+    fstype: xfs
+    dev: "/dev/{{ vg }}/{{ lv1 }}"
+
+- name: Setup Mount points on the first filesystem.
+  mount:
+    state: mounted
+    fstype: xfs
+    path: "{{ mp1 }}"
+    src: "/dev/mapper/{{ vg }}-{{ lv1 }}"
+    opts: defaults
+  when: vars[item] is not none
+  with_items: lvol0
+
+- name: Ensure the system can use the HTTPS transport for APT.
+  stat:
+    path: /usr/lib/apt/methods/https
+  register: apt_https_transport
+
+- name: Install APT HTTPS transport.
+  apt:
+    name: "apt-transport-https"
+    state: present
+    update_cache: yes
+  when: not apt_https_transport.stat.exists
+
+- name: Install basic packages
+  package:
+    name: ['vim','aptitude','bash-completion','tmux','tree','htop','wget','unzip','curl','git']
+    state: present
+    update_cache: yes
+
+- name: Install Default Java (Debian/Ubuntu)
+  apt:
+    name: default-jdk
+    state: present
+
+- name: Add tomcat group
+  group:
+    name: tomcat
+
+- name: Add "tomcat" user
+  user:
+    name: tomcat
+    group: tomcat
+    home: /usr/share/tomcat
+    createhome: no
+    system: yes
+
+- name: Download Tomcat
+  get_url:
+    url: "{{ tomcat_archive_url }}"
+    dest: "{{ tomcat_archive_dest }}"
+
+- name: Create a tomcat directory
+  file:
+    path: /usr/share/tomcat
+    state: directory
+    owner: tomcat
+    group: tomcat
+
+- name: Extract tomcat archive
+  unarchive:
+    src: "{{ tomcat_archive_dest }}"
+    dest: /usr/share/tomcat
+    owner: tomcat
+    group: tomcat
+    remote_src: yes
+    extra_opts: "--strip-components=1"
+    creates: /usr/share/tomcat/bin
+
+- name: Copy tomcat service file
+  template:
+    src: templates/tomcat.service.j2
+    dest: /etc/systemd/system/tomcat.service
+  when: ansible_service_mgr == "systemd"
+
+- name: Start and enable tomcat
+  service:
+    daemon_reload: yes
+    name: tomcat
+    state: started
+    enabled: yes
+  when: ansible_service_mgr == "systemd"
+#- name: Set UI access credentials
+#  template:
+#    src: tomcat-users.xml.j2
+#    dest: /usr/share/tomcat/conf/tomcat-users.xml
+#  notify: restart tomcat
+
+#- name: Allow access to Manager and Host Manager apps from any IP
+#  template:
+#    src: context.xml.j2 
+#    dest: "{{ item }}"
+#  with_items:
+#    - /usr/share/tomcat/webapps/host-manager/META-INF/context.xml
+#    - /usr/share/tomcat/webapps/manager/META-INF/context.xml
+#  notify: restart tomcat

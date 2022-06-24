@@ -1,0 +1,13 @@
+
+- name: restart ntpd
+  service:
+    name: ntpd
+    state: started
+    enabled: yes
+
+- name: "restart tomcat"
+  service:
+    name: "{{ playbookname }}"
+    state: started
+    enabled: yes
+

@@ -1,0 +1,5 @@
+Ubuntu_JDK11: openjdk-11-jdk
+RedHat_JDK11: java-11-openjdk-devel
+Ubuntu_JDK8: openjdk-8-jdk
+RedHat_JDK8: java-1.8.0-openjdk-devel
+Ubuntu_Resolv_conf: ubuntu_resolv.conf

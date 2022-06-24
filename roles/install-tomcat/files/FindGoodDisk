@@ -1,0 +1,13 @@
+GoodDisk="None"
+[ -f /tmp/finddisk ] && rm -f /tmp/finddisk
+for disk in `fdisk -l|grep "/dev/sd"|grep "sectors"|awk '{print $2}'|sed 's/://g'`
+do
+ printf "$disk" >> /tmp/finddisk
+ diskname=`fdisk -l $disk|grep "Disk identifier"|awk '{print $1}'|sed 's/://g'`
+ case "$diskname" in
+   Disk) AA=0 ;;
+      *) GoodDisk=$disk
+ esac
+done
+[ -f /tmp/finddisk ] && rm -f /tmp/finddisk
+echo "$GoodDisk"

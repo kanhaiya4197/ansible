@@ -1,0 +1,110 @@
+---
+- hosts: java
+  tasks:
+    - name: install zip and unzip
+      become: true
+      become_method: sudo
+      package: name={{ item }} state=present
+      with_items:
+        - zip
+        - unzip
+        - python-pip
+        - pip
+    - name: Update APT package manager repositories cache
+      become: true
+      apt:
+       update_cache: yes
+    - name: Install Java using Ansible
+      become: yes
+      apt:
+       name: "{{ packages }}"
+       state: present
+      vars:
+       packages:
+         - openjdk-8-jdk #openjdk-8-jre
+    - name: add apt key for nodesource
+      apt_key: url=https://deb.nodesource.com/gpgkey/nodesource.gpg.key
+
+      #- name: add repo for nodesource
+      # apt_repository:
+      # repo: deb https://deb.nodesource.com/node_14.x bionic main
+      # update_cache: yes
+        # - name: install nodejs
+        # apt: 
+        #name: nodejs
+    
+    - name: Install nodejs
+      shell: curl -fsSL https://deb.nodesource.com/setup_14.x | sudo -E bash - && sudo apt-get install -y nodejs
+
+
+
+    - name: Add Docker GPG apt Key
+      apt_key:
+        url: https://download.docker.com/linux/ubuntu/gpg
+        state: present
+
+    - name: Add Docker Repository
+      apt_repository:
+        repo: deb https://download.docker.com/linux/ubuntu focal stable
+        state: present
+
+    - name: Update apt and install docker-ce
+      apt:
+        name: docker-ce
+        state: latest
+        update_cache: true
+    
+        #- name: Ensure pip is installed
+        #apt: 
+        #       ne: python-pip3
+        #       update_cache: yes
+        #       state: latest
+
+    - name: pip install awscli
+      pip: 
+        name: awscli 
+        #state: latest
+
+        #- name: Install Python
+        #raw: apt -y update && apt install -y python-minimal
+      # when: check_python.rc != 0
+   
+    - name: Download the awscli bundle.
+      get_url: url=https://s3.amazonaws.com/aws-cli/awscli-bundle.zip dest=/tmp/awscli-bundle.zip
+      register: aws_cli_download_bundle
+
+    - name: Unarchive the installer.
+      unarchive: src=/tmp/awscli-bundle.zip dest=/tmp copy=no creates=/tmp/awscli-bundle
+      when: aws_cli_download_bundle.changed
+      register: aws_cli_unarchive_installer
+
+    - name: Install awscli package.
+      shell: python /tmp/awscli-bundle/install -i /usr/local/aws -b /usr/bin/aws
+      args:
+        creates: /usr/bin/aws
+      when: aws_cli_unarchive_installer.changed
+
+    
+      #   - name: Install helm chart
+      # kubernetes.core.helm:
+      #  chart:
+      #   name: memcached
+      #   version: 0.4.0
+      #   source:
+      #     type: repo
+      #     location: https://kubernetes-charts.storage.googleapis.com
+      # state: present
+      # name: my-memcached
+      # release_namespace: default
+        #    - name: Install helm chart from a git repo specifying path
+        #      kubernetes.core.helm:
+        #        chart:
+        #           source:
+        #             type: git
+        #             location: https://github.com/helm/charts.git
+        #             path: stable/memcached
+        #        state: present
+        #        name: my-memcached
+
+    - name: Add helm repo
+      shell: wget https://get.helm.sh/helm-v3.4.1-linux-amd64.tar.gz && tar xvf helm-v3.4.1-linux-amd64.tar.gz && sudo mv linux-amd64/helm /usr/local/bin && rm helm-v3.4.1-linux-amd64.tar.gz && rm -rf linux-amd64 

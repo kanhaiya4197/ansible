@@ -1,0 +1,30 @@
+---
+- name: Create the c:\Temp directory if it doesn't already exist
+  win_file:
+    path: c:\Temp
+    state: directory
+  when: ansible_os_family == "Windows"
+
+- name: Copy java Developers Kit version 8 executable to Windows server
+  win_copy:
+    src: files/jdk-8u271-windows-x64.exe
+    dest: C:\Temp\jdk-8u271-windows-x64.exe
+  when: ansible_os_family == "Windows"
+
+- name: Install Java Developer Kit version 8 on Windows
+  raw: 'c:\Temp\jdk-8u271-windows-x64.exe /s ADDLOCAL="ToolsFeature,SourceFeature"'
+  when: ansible_os_family == "Windows"
+
+- name: Set Java_home on Windows
+  win_environment:
+    state: present
+    name: JAVA_HOME
+    value: 'c:\program files\java\jdk1.8.0_271'
+    level: machine
+  when: ansible_os_family == "Windows"
+
+- name: Add Java to path on Windows
+  win_path:
+    elements:
+      - 'c:\program files\java\jdk1.8.0_271\bin'
+  when: ansible_os_family == "Windows"
